@@ -1,0 +1,665 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>YaraMak — Портфолио художницы</title>
+  <meta name="description" content="Портфолио художницы YaraMak: фэнтези, драконы, магия. Галерея работ и заказы." />
+
+  <!-- Tailwind через CDN (без сборки) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Небольшая кастомизация Tailwind -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink: "#070A0F",
+            ink2: "#0B1220",
+            glow: "#26F7E6",
+            glow2: "#13B6C7",
+          },
+          boxShadow: {
+            glow: "0 0 24px rgba(38,247,230,.35)",
+            glowStrong: "0 0 44px rgba(38,247,230,.45)",
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+
+    :root{
+      --gold: #d8b46a;
+      --gold2:#b88a35;
+      --emerald0:#041012;
+      --emerald1:#07191a;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-12px); }
+    }
+
+    @keyframes glow-pulse {
+      0%, 100% {
+        box-shadow: 0 0 24px rgba(38,247,230,.35), 0 0 12px rgba(38,247,230,.25);
+      }
+      50% {
+        box-shadow: 0 0 32px rgba(38,247,230,.45), 0 0 20px rgba(38,247,230,.35);
+      }
+    }
+
+    @keyframes glow-pulse-text {
+      0%, 100% { text-shadow: 0 0 16px rgba(38,247,230,.35); }
+      50% { text-shadow: 0 0 24px rgba(38,247,230,.55); }
+    }
+
+    /* Фоновая "атмосфера": чешуя + глубокий изумруд */
+    .bg-fantasy {
+      background:
+        radial-gradient(circle at 20% 30%, rgba(216,180,106,.22), transparent 28%),
+        radial-gradient(circle at 40% 60%, rgba(216,180,106,.14), transparent 24%),
+        radial-gradient(circle at 78% 26%, rgba(38,247,230,.12), transparent 22%),
+        radial-gradient(circle at 82% 78%, rgba(216,180,106,.12), transparent 26%),
+        radial-gradient(circle at 16% 82%, rgba(38,247,230,.10), transparent 20%),
+        linear-gradient(180deg,
+          var(--emerald0) 0%,
+          var(--emerald1) 18%,
+          #061214 50%,
+          #040b0e 80%,
+          #020507 100%);
+    }
+
+    /* Слой с текстурой чешуи поверх */
+    .bg-scales::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(180deg, rgba(3,5,8,.92), rgba(3,5,8,.72)),
+        url("images/scales.png");
+      background-size: auto, 820px;
+      background-repeat: repeat;
+      background-position: center;
+      opacity: .14;
+      mix-blend-mode: overlay;
+      filter: saturate(1.05) contrast(1.06);
+      transform: translateZ(0);
+    }
+
+    .shine { position: relative; overflow: hidden; }
+    .shine::before {
+      content: "";
+      position: absolute;
+      inset: -120px;
+      background: radial-gradient(circle at 30% 20%, rgba(38,247,230,.20), transparent 45%);
+      opacity: .9;
+      pointer-events: none;
+      transform: translateZ(0);
+    }
+
+    .float-animation { animation: float 3.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite; }
+    .glow-animate { animation: glow-pulse 3s ease-in-out infinite; }
+    .glow-text-animate { animation: glow-pulse-text 3s ease-in-out infinite; }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity .7s cubic-bezier(0.34, 1.56, 0.64, 1), transform .7s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .reveal.show { opacity: 1; transform: translateY(0); }
+
+    .card-hover { transition: all .4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .card-hover:hover { transform: translateY(-4px); }
+
+    img { transition: all .4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+    :focus-visible {
+      outline: 2px solid rgba(38,247,230,.65);
+      outline-offset: 2px;
+      border-radius: 10px;
+    }
+
+    .divider {
+      display: grid;
+      place-items: center;
+      color: rgba(255,255,255,.65);
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+    .divider span {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+    }
+    .divider .line {
+      height: 1px;
+      width: 80px;
+      background: linear-gradient(90deg, transparent, rgba(216,180,106,.55), transparent);
+    }
+
+    .btn-primary {
+      background: linear-gradient(180deg, rgba(216,180,106,.95), rgba(184,138,53,.92));
+      color: #081012;
+      border: 1px solid rgba(216,180,106,.55);
+      box-shadow: 0 10px 40px rgba(216,180,106,.18);
+    }
+    .btn-primary:hover { filter: brightness(1.05) saturate(1.05); }
+
+    .btn-ghost {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.10);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,.08); }
+
+    .card {
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      border-radius: 18px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      color: rgba(255,255,255,.75);
+      font-size: 12px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .card-emerald {
+      background: rgba(6, 14, 16, .55);
+      border-color: rgba(216,180,106,.18);
+    }
+
+    .gold-text { color: rgba(216,180,106,.95); }
+    .gold-border { border-color: rgba(216,180,106,.25) !important; }
+
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(3, 10, 11, .72);
+      border-bottom: 1px solid rgba(216,180,106,.20);
+      backdrop-filter: blur(10px);
+    }
+    .top-nav a {
+      position: relative;
+      padding: 18px 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.72);
+      white-space: nowrap;
+    }
+    .top-nav a:hover { color: rgba(255,255,255,.92); }
+    .top-nav a.active { color: rgba(216,180,106,.95); }
+    .top-nav a.active::after {
+      content: "";
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 10px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(216,180,106,.8), transparent);
+      border-radius: 999px;
+    }
+
+    .frame {
+      position: relative;
+      border-radius: 18px;
+      padding: 16px;
+      border: 1px solid rgba(216,180,106,.22);
+      background: rgba(0,0,0,.18);
+      box-shadow: 0 0 0 1px rgba(216,180,106,.08), 0 0 36px rgba(0,0,0,.28);
+    }
+    .frame::before {
+      content: "";
+      position: absolute;
+      inset: 6px;
+      border-radius: 14px;
+      border: 1px solid rgba(216,180,106,.10);
+      pointer-events: none;
+    }
+  </style>
+</head>
+
+<body class="bg-fantasy bg-scales text-white selection:bg-[rgba(38,247,230,.25)] selection:text-white">
+  <!-- TOP NAV (как на скрине) -->
+  <header class="top-nav">
+    <div class="max-w-6xl mx-auto px-4">
+      <nav class="flex justify-center gap-2 overflow-x-auto">
+        <a href="#top" data-nav="top" class="active">Главная</a>
+        <a href="#gallery" data-nav="gallery">Галерея</a>
+        <a href="#about" data-nav="about">Обо мне</a>
+        <a href="#orders" data-nav="orders">Заказ</a>
+        <a href="#contacts" data-nav="contacts">Контакт</a>
+      </nav>
+    </div>
+  </header>
+  <main id="top">
+    <!-- HERO (как в шаблоне) -->
+    <section class="relative min-h-screen">
+      <!-- Fullscreen hero image -->
+      <img
+        src="images/hero.png"
+        alt="Фэнтези-иллюстрация: дракон"
+        class="absolute inset-0 h-full w-full object-cover"
+      />
+
+      <!-- Readability overlays -->
+      <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/35 to-black/80"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(216,180,106,.10),transparent_60%)]"></div>
+
+      <div class="relative max-w-6xl mx-auto px-4 pt-16 pb-12 md:pt-24 md:pb-16 min-h-screen flex flex-col justify-center">
+        <div class="text-center reveal">
+          <h1 class="text-4xl md:text-6xl font-semibold tracking-tight">Яра &amp; Драконы</h1>
+          <p class="mt-3 text-lg md:text-xl text-white/75">Портфолио Художницы</p>
+        </div>
+
+        <p class="mt-8 max-w-2xl mx-auto text-center text-white/75 leading-relaxed reveal">
+          Фэнтези иллюстрации, заказные работы и авторские драконы — каждый с душой и характером
+        </p>
+
+        <div class="mt-8 flex flex-col sm:flex-row gap-3 justify-center reveal">
+          <a href="#gallery" class="inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-semibold btn-primary transition">
+            Перейти в галерею
+          </a>
+          <a href="#orders" class="inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-semibold btn-ghost transition">
+            Сделать заказ
+          </a>
+        </div>
+
+        <div class="mt-6 flex justify-center reveal">
+          <a class="text-sm text-white/70 hover:text-white transition underline underline-offset-4"
+             href="https://t.me/Yara_and_dragons" target="_blank" rel="noopener">
+            t.me/Yara_and_dragons
+          </a>
+        </div>
+
+        <div class="mt-12 grid place-items-center text-white/55 text-sm reveal">
+          <a href="#gallery" class="inline-flex items-center gap-2 hover:text-white transition">
+            Листай вниз
+            <span aria-hidden="true">↓</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- GALLERY -->
+    <section id="gallery" class="scroll-mt-16">
+      <div class="max-w-6xl mx-auto px-4 py-14 md:py-18">
+        <div class="text-center reveal">
+          <div class="badge mx-auto">Галерея</div>
+          <h2 class="mt-5 text-2xl md:text-4xl font-semibold">Избранные работы</h2>
+          <div class="mt-3 text-white/65">❖</div>
+        </div>
+
+        <div class="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <button class="reveal card card-hover group text-left overflow-hidden hover:border-[rgba(38,247,230,.25)] hover:shadow-glow transition"
+                  data-open-image="images/work-1.png" data-open-title="Эскиз Малыша">
+            <div class="h-56 bg-ink2 overflow-hidden">
+              <img src="images/work-1.png" alt="Эскиз Малыша" class="w-full h-full object-cover group-hover:scale-[1.05] transition" />
+            </div>
+            <div class="p-4">
+              <div class="font-semibold">Эскиз Малыша</div>
+              <div class="mt-1 text-sm text-white/65">Полный цвет</div>
+            </div>
+          </button>
+
+          <button class="reveal card card-hover group text-left overflow-hidden hover:border-[rgba(38,247,230,.25)] hover:shadow-glow transition"
+                  data-open-image="images/work-2.png" data-open-title="Traditional Ink">
+            <div class="h-56 bg-ink2 overflow-hidden">
+              <img src="images/work-2.png" alt="Traditional Ink" class="w-full h-full object-cover group-hover:scale-[1.05] transition" />
+            </div>
+            <div class="p-4">
+              <div class="font-semibold">Traditional Ink</div>
+              <div class="mt-1 text-sm text-white/65">Тушь на пергаменте</div>
+            </div>
+          </button>
+
+          <button class="reveal card card-hover group text-left overflow-hidden hover:border-[rgba(38,247,230,.25)] hover:shadow-glow transition"
+                  data-open-image="images/hero.png" data-open-title="Страж Вершин">
+            <div class="h-56 bg-ink2 overflow-hidden">
+              <img src="images/hero.png" alt="Страж Вершин" class="w-full h-full object-cover group-hover:scale-[1.05] transition" />
+            </div>
+            <div class="p-4">
+              <div class="font-semibold">Страж Вершин</div>
+              <div class="mt-1 text-sm text-white/65">Бирюзовый дракон</div>
+            </div>
+          </button>
+
+          <button class="reveal card card-hover group text-left overflow-hidden hover:border-[rgba(38,247,230,.25)] hover:shadow-glow transition"
+                  data-open-image="images/work-3.png" data-open-title="Wyrm-kin">
+            <div class="h-56 bg-ink2 overflow-hidden">
+              <img src="images/work-3.png" alt="Wyrm-kin" class="w-full h-full object-cover group-hover:scale-[1.05] transition" />
+            </div>
+            <div class="p-4">
+              <div class="font-semibold">Wyrm-kin</div>
+              <div class="mt-1 text-sm text-white/65">Скетч / персонаж</div>
+            </div>
+          </button>
+
+          <button class="reveal card card-hover group text-left overflow-hidden hover:border-[rgba(38,247,230,.25)] hover:shadow-glow transition"
+                  data-open-image="images/work-4.png" data-open-title="Огненный дракон">
+            <div class="h-56 bg-ink2 overflow-hidden">
+              <img src="images/work-4.png" alt="Огненный дракон" class="w-full h-full object-cover group-hover:scale-[1.05] transition" />
+            </div>
+            <div class="p-4">
+              <div class="font-semibold">Огненный дракон</div>
+              <div class="mt-1 text-sm text-white/65">Сцена</div>
+            </div>
+          </button>
+
+          <button class="reveal card card-hover group text-left overflow-hidden hover:border-[rgba(38,247,230,.25)] hover:shadow-glow transition"
+                  data-open-image="images/work-5.png" data-open-title="Взгляд вечности">
+            <div class="h-56 bg-ink2 overflow-hidden">
+              <img src="images/work-5.png" alt="Взгляд вечности" class="w-full h-full object-cover group-hover:scale-[1.05] transition" />
+            </div>
+            <div class="p-4">
+              <div class="font-semibold">Взгляд вечности</div>
+              <div class="mt-1 text-sm text-white/65">Глаз легенды</div>
+            </div>
+          </button>
+        </div>
+
+        <div class="mt-10 flex justify-center reveal">
+          <a class="inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-semibold btn-ghost transition"
+             href="https://t.me/Yara_and_dragons" target="_blank" rel="noopener">
+            Все работы в Telegram
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="scroll-mt-24">
+      <div class="max-w-6xl mx-auto px-4 py-14 md:py-18">
+        <div class="reveal text-center">
+          <div class="text-sm tracking-[.35em] uppercase gold-text">Обо мне</div>
+          <div class="mt-3 h-px w-44 mx-auto bg-gradient-to-r from-transparent via-[rgba(216,180,106,.55)] to-transparent"></div>
+        </div>
+
+        <div class="mt-10 grid lg:grid-cols-2 gap-6 items-start">
+          <div class="reveal">
+            <div class="frame">
+              <div class="rounded-xl overflow-hidden border border-white/10 bg-ink2">
+                <img src="images/work-3.png" alt="Иллюстрация" class="w-full h-[320px] md:h-[420px] object-cover" />
+              </div>
+            </div>
+          </div>
+
+          <div class="reveal card card-emerald p-6">
+            <div class="flex items-center justify-center lg:justify-start gap-3">
+              <div class="h-px w-10 bg-gradient-to-r from-transparent to-[rgba(216,180,106,.6)]"></div>
+              <div class="text-sm tracking-[.28em] uppercase gold-text">Обо мне</div>
+              <div class="h-px w-10 bg-gradient-to-l from-transparent to-[rgba(216,180,106,.6)]"></div>
+            </div>
+
+            <p class="mt-5 text-white/80 leading-relaxed">
+              Привет! Я <span class="gold-text font-semibold">Яра</span>, художница, чьё сердце принадлежит драконам.
+            </p>
+            <p class="mt-4 text-white/70 leading-relaxed">
+              Мой канал в Telegram — это место, где оживает магия, и где я делюсь каждым шагом своего творческого пути.
+              Эскизы, процессы, готовые работы и маленькие истории о каждом драконе.
+            </p>
+            <p class="mt-4 text-white/70 leading-relaxed">
+              Я создаю иллюстрации как для личных коллекций, так и на заказ — каждый дракон получает свой характер, историю и душу.
+            </p>
+
+            <div class="mt-6 grid grid-cols-3 gap-3 text-center">
+              <div class="card p-4 bg-[rgba(255,255,255,.04)] gold-border">
+                <div class="text-2xl font-semibold gold-text">200+</div>
+                <div class="mt-1 text-xs tracking-[.2em] uppercase text-white/60">Работ</div>
+              </div>
+              <div class="card p-4 bg-[rgba(255,255,255,.04)] gold-border">
+                <div class="text-2xl font-semibold gold-text">5+</div>
+                <div class="mt-1 text-xs tracking-[.2em] uppercase text-white/60">Лет опыта</div>
+              </div>
+              <div class="card p-4 bg-[rgba(255,255,255,.04)] gold-border">
+                <div class="text-2xl font-semibold gold-text">150+</div>
+                <div class="mt-1 text-xs tracking-[.2em] uppercase text-white/60">Заказов</div>
+              </div>
+            </div>
+
+            <div class="mt-6">
+              <a class="inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-semibold btn-primary transition w-full sm:w-auto"
+                 href="https://t.me/Yara_and_dragons" target="_blank" rel="noopener">
+                Telegram канал
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ORDERS -->
+    <section id="orders" class="scroll-mt-16">
+      <div class="max-w-6xl mx-auto px-4 py-14 md:py-18">
+        <div class="text-center reveal">
+          <div class="badge mx-auto">Заказ</div>
+          <h2 class="mt-5 text-2xl md:text-4xl font-semibold">Выбери свой формат</h2>
+          <div class="mt-3 text-white/65">❖</div>
+        </div>
+
+        <div class="mt-10 grid lg:grid-cols-3 gap-4">
+          <div class="reveal card card-hover p-6 bg-[rgba(11,18,32,.55)] hover:border-[rgba(38,247,230,.22)] hover:shadow-glow transition">
+            <div class="text-sm font-semibold tracking-widest text-white/75">ЭСКИЗ</div>
+            <div class="mt-3 text-2xl font-semibold text-white">от 2 000 ₽</div>
+            <p class="mt-3 text-sm text-white/70">
+              Детализированный карандашный или цифровой эскиз вашего дракона. Один персонаж, базовый фон.
+            </p>
+            <div class="mt-4 text-sm text-white/70">⏱ 3–5 дней</div>
+          </div>
+
+          <div class="reveal card card-hover p-6 bg-[rgba(38,247,230,.06)] border-[rgba(38,247,230,.16)] shadow-glow hover:shadow-glowStrong transition">
+            <div class="text-sm font-semibold tracking-widest text-white/75">ПОЛНЫЙ ЦВЕТ</div>
+            <div class="mt-3 text-2xl font-semibold text-white">от 7 000 ₽</div>
+            <p class="mt-3 text-sm text-white/70">
+              Полноценная цифровая иллюстрация с детальной прорисовкой, сложным освещением и фоном.
+            </p>
+            <div class="mt-4 text-sm text-white/70">⏱ 10–14 дней</div>
+          </div>
+
+          <div class="reveal card card-hover p-6 bg-[rgba(11,18,32,.55)] hover:border-[rgba(38,247,230,.22)] hover:shadow-glow transition">
+            <div class="text-sm font-semibold tracking-widest text-white/75">ПЕРСОНАЛЬНЫЙ ДРАКОН</div>
+            <div class="mt-3 text-2xl font-semibold text-white">от 15 000 ₽</div>
+            <p class="mt-3 text-sm text-white/70">
+              Создание уникального дракона с нуля — дизайн, цветовая схема, детали по вашему описанию.
+            </p>
+            <div class="mt-4 text-sm text-white/70">⏱ 14–21 день</div>
+          </div>
+        </div>
+
+        <div class="mt-8 text-center text-white/70 reveal">
+          Не знаешь что выбрать? Напиши — подберём формат вместе
+        </div>
+
+        <div class="mt-6 flex justify-center reveal">
+          <a href="#contacts" class="inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-semibold btn-primary transition">
+            Связаться
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contacts" class="scroll-mt-16">
+      <div class="max-w-6xl mx-auto px-4 py-14 md:py-18">
+        <div class="text-center reveal">
+          <div class="badge mx-auto">Связаться</div>
+          <h2 class="mt-5 text-2xl md:text-4xl font-semibold">Напишите мне</h2>
+          <div class="mt-3 text-white/65">❖</div>
+        </div>
+
+        <div class="mt-10 grid lg:grid-cols-2 gap-4 items-start">
+          <div class="reveal card p-6 bg-[rgba(11,18,32,.55)]">
+            <div class="text-sm font-semibold">Быстрые ссылки</div>
+            <div class="mt-4 space-y-3 text-white/75">
+              <div>
+                <div class="text-xs text-white/60">Личка</div>
+                <a class="hover:text-white transition underline underline-offset-4" href="https://t.me/Yaroslavamak" target="_blank" rel="noopener">@Yaroslavamak</a>
+              </div>
+              <div>
+                <div class="text-xs text-white/60">Канал</div>
+                <a class="hover:text-white transition underline underline-offset-4" href="https://t.me/Yara_and_dragons" target="_blank" rel="noopener">t.me/Yara_and_dragons</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="reveal card p-6 bg-[rgba(11,18,32,.55)] shine">
+            <form id="tgForm" class="space-y-4">
+              <div>
+                <label class="text-xs text-white/60" for="name">Имя</label>
+                <input id="name" name="name" type="text" required
+                       class="mt-1 w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-sm placeholder:text-white/35 focus:border-[rgba(38,247,230,.45)] focus:ring-2 focus:ring-[rgba(38,247,230,.18)] outline-none transition"
+                       placeholder="Как к вам обращаться?" />
+              </div>
+
+              <div>
+                <label class="text-xs text-white/60" for="contact">Контакт</label>
+                <input id="contact" name="contact" type="text" required
+                       class="mt-1 w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-sm placeholder:text-white/35 focus:border-[rgba(38,247,230,.45)] focus:ring-2 focus:ring-[rgba(38,247,230,.18)] outline-none transition"
+                       placeholder="Telegram / Email" />
+              </div>
+
+              <div>
+                <label class="text-xs text-white/60" for="message">Сообщение</label>
+                <textarea id="message" name="message" rows="5" required
+                          class="mt-1 w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-sm placeholder:text-white/35 focus:border-[rgba(38,247,230,.45)] focus:ring-2 focus:ring-[rgba(38,247,230,.18)] outline-none transition"
+                          placeholder="Опишите идею и детали заказа"></textarea>
+              </div>
+
+              <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+                <button type="submit"
+                        class="inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-semibold btn-primary transition">
+                  Отправить
+                </button>
+                <p class="text-xs text-white/55">
+                  Откроет Telegram с готовым текстом.
+                </p>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <footer class="mt-12 text-center text-xs text-white/50 reveal">
+          © <span id="year"></span> YaraMak • Fantasy Art
+        </footer>
+      </div>
+    </section>
+  </main>
+
+  <!-- Lightbox -->
+  <div id="lightbox" class="hidden fixed inset-0 z-[60]">
+    <div class="absolute inset-0 bg-black/75"></div>
+    <div class="relative h-full w-full grid place-items-center p-4">
+      <div class="w-full max-w-4xl rounded-2xl border border-[rgba(38,247,230,.18)] bg-[rgba(11,18,32,.85)] shadow-glow overflow-hidden">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-white/10">
+          <div id="lightboxTitle" class="text-sm font-semibold">Просмотр</div>
+          <button id="lightboxClose" class="rounded-xl px-3 py-2 text-sm border border-white/10 bg-white/5 hover:border-[rgba(38,247,230,.25)] hover:shadow-glow transition">
+            Закрыть (Esc)
+          </button>
+        </div>
+        <div class="bg-ink2">
+          <img id="lightboxImg" src="" alt="" class="w-full max-h-[78vh] object-contain" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('show');
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const lightboxTitle = document.getElementById('lightboxTitle');
+    const lightboxClose = document.getElementById('lightboxClose');
+
+    function openLightbox(src, title) {
+      lightboxImg.src = src;
+      lightboxImg.alt = title || 'Работа';
+      lightboxTitle.textContent = title || 'Просмотр';
+      lightbox.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      lightbox.classList.add('hidden');
+      lightboxImg.src = '';
+      document.body.style.overflow = '';
+    }
+
+    document.querySelectorAll('[data-open-image]').forEach(btn => {
+      btn.addEventListener('click', () => openLightbox(
+        btn.getAttribute('data-open-image'),
+        btn.getAttribute('data-open-title')
+      ));
+    });
+
+    lightboxClose?.addEventListener('click', closeLightbox);
+    lightbox?.addEventListener('click', (e) => {
+      if (e.target === lightbox || e.target === lightbox.firstElementChild) closeLightbox();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !lightbox.classList.contains('hidden')) closeLightbox();
+    });
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const navLinks = Array.from(document.querySelectorAll('.top-nav a[data-nav]'));
+    const sectionIds = navLinks.map(a => a.getAttribute('href')?.replace('#','')).filter(Boolean);
+    const sections = sectionIds
+      .map(id => ({ id, el: document.getElementById(id) }))
+      .filter(x => x.el);
+
+    const navObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === `#${entry.target.id}`));
+      });
+    }, { rootMargin: "-40% 0px -55% 0px", threshold: 0.01 });
+
+    sections.forEach(s => navObserver.observe(s.el));
+
+    const tgForm = document.getElementById('tgForm');
+    tgForm?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const contact = document.getElementById('contact').value.trim();
+      const message = document.getElementById('message').value.trim();
+      const text = encodeURIComponent(
+        `Привет! Меня зовут ${name}.\n` +
+        `Мой контакт: ${contact}\n\n` +
+        `${message}`
+      );
+      const url = `https://t.me/Yaroslavamak?text=${text}`;
+      window.open(url, '_blank', 'noopener');
+      setTimeout(() => tgForm.reset(), 300);
+    });
+  </script>
+</body>
+</html>
